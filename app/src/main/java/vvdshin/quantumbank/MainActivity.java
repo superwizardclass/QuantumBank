@@ -25,7 +25,6 @@ public class MainActivity extends Activity {
 
     private boolean isQuarterVisible = true;
 
-
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,39 +39,52 @@ public class MainActivity extends Activity {
         quarterImageView.setAdjustViewBounds(true);
         quarterImageView.setMaxWidth(300);
         quarterImageView.setMaxHeight(300);
-
-
+        quarterImageView.setX(500);
+        quarterImageView.setY(500);
+        quarterImageView.bringToFront();
         final Button quarterButton = findViewById(R.id.quarter_button);
         layout.addView(quarterImageView);
+
         quarterButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent e) {
-                if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    if (isQuarterVisible == true) {
-                        layout.removeView(quarterImageView);
-                        isQuarterVisible = false;
-                    } else {
+                int pointerCount = e.getPointerCount();
+                Log.e(TAG, "Point Count: "+ pointerCount);
+
+                if (pointerCount == 2
+                    && e.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN
+                        && !isQuarterVisible) {
+                        int rawTouchX;
+                        int rawTouchY;
+                        final int location[] = {0,0};
+                        v.getLocationOnScreen(location);
+                        int secondTouchX =  (int) e.getX(1);
+                        int secondTouchY = (int) e.getY(1);
+                        rawTouchX = secondTouchX + location[0] - 150;
+                        rawTouchY = secondTouchY + location[1] - 50;
+                        quarterImageView.setX(rawTouchX);
+                        quarterImageView.setY(rawTouchY);
                         layout.addView(quarterImageView);
                         isQuarterVisible = true;
-                    }
-
-                    Log.e(TAG, "" + isQuarterVisible);
-                    return true;
+                        return true;
+                } else if (pointerCount == 1
+                        && isQuarterVisible
+                        && e.getAction() == MotionEvent.ACTION_DOWN) {
+                    layout.removeView(quarterImageView);
+                    isQuarterVisible = false;
                 }
-                return false;
+                return true;
             }
         });
-
-
-
 /*        if (proximitySensor == null) {
             Log.e(TAG, "Proximity sensor is unavilable");
             finish();
         } else {
             Log.e(TAG, "Proximity sensor active");
         }*/
-
     }
+
+
 
     @Override
     public void onResume() {
