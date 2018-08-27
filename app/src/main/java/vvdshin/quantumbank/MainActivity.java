@@ -7,6 +7,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -49,24 +50,35 @@ public class MainActivity extends Activity {
             @Override
             public boolean onTouch(View v, MotionEvent e) {
                 int pointerCount = e.getPointerCount();
-                Log.e(TAG, "Point Count: "+ pointerCount);
+                Log.e(TAG, "Point Count: " + pointerCount);
 
-                if (pointerCount == 2
-                    && e.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN
+/*                if (pointerCount == 3 && !isQuarterVisible) {
+                    quarterImageView.setX(500);
+                    quarterImageView.setY(500);
+                    Log.e(TAG, "I'm in here");
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            layout.addView(quarterImageView);
+                        }
+                    }, 5000);
+                    isQuarterVisible = true;
+                } else*/ if (pointerCount == 2
+                        && e.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN
                         && !isQuarterVisible) {
-                        int rawTouchX;
-                        int rawTouchY;
-                        final int location[] = {0,0};
-                        v.getLocationOnScreen(location);
-                        int secondTouchX =  (int) e.getX(1);
-                        int secondTouchY = (int) e.getY(1);
-                        rawTouchX = secondTouchX + location[0] - 150;
-                        rawTouchY = secondTouchY + location[1] - 50;
-                        quarterImageView.setX(rawTouchX);
-                        quarterImageView.setY(rawTouchY);
-                        layout.addView(quarterImageView);
-                        isQuarterVisible = true;
-                        return true;
+                    int rawTouchX;
+                    int rawTouchY;
+                    final int location[] = {0, 0};
+                    v.getLocationOnScreen(location);
+                    int secondTouchX = (int) e.getX(1);
+                    int secondTouchY = (int) e.getY(1);
+                    rawTouchX = secondTouchX + location[0] - 150;
+                    rawTouchY = secondTouchY + location[1] - 50;
+                    quarterImageView.setX(rawTouchX);
+                    quarterImageView.setY(rawTouchY);
+                    layout.addView(quarterImageView);
+                    isQuarterVisible = true;
                 } else if (pointerCount == 1
                         && isQuarterVisible
                         && e.getAction() == MotionEvent.ACTION_DOWN) {
@@ -83,7 +95,6 @@ public class MainActivity extends Activity {
             Log.e(TAG, "Proximity sensor active");
         }*/
     }
-
 
 
     @Override
