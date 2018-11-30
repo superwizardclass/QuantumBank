@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import static android.content.ContentValues.TAG;
 
@@ -25,7 +26,11 @@ public class MainActivity extends Activity {
     private Sensor proximitySensor;*/
 
     private boolean isQuarterVisible = true;
-
+    private boolean isSharpieVisible = true;
+    private String mode = "quarter";
+    private boolean isObjectVisible = true;
+    private boolean isLocked = false;
+    private int lockTouchCount = 0;
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,99 +38,136 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         final ImageView quarterImageView = new ImageView(getApplicationContext());
+        final ImageView sharpieImageView = new ImageView(getApplicationContext());
         final RelativeLayout layout = (RelativeLayout) findViewById(R.id.main_layout);
-/*        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);*/
+
+        //Quarter
         quarterImageView.setImageResource(R.drawable.quarter);
         quarterImageView.setAdjustViewBounds(true);
         quarterImageView.setMaxWidth(300);
         quarterImageView.setMaxHeight(300);
         quarterImageView.setX(500);
         quarterImageView.setY(500);
-        quarterImageView.bringToFront();
-        final Button quarterButton = findViewById(R.id.quarter_button);
-        layout.addView(quarterImageView);
 
+        //Sharpie
+        sharpieImageView.setImageResource(R.drawable.black_sharpie);
+        sharpieImageView.setAdjustViewBounds(true);
+        sharpieImageView.setMaxHeight(2000);
+        sharpieImageView.setX(500);
+        sharpieImageView.setY(50);
+        sharpieImageView.setVisibility(View.INVISIBLE);
+
+        final TextView quarterButton = findViewById(R.id.quarter_button);
+        final TextView lockButton = findViewById(R.id.lock_button);
+        final TextView lockNotifier = findViewById(R.id.lock_notifier);
+        final TextView switchButton = findViewById(R.id.switch_button);
+
+        layout.addView(quarterImageView);
+        layout.addView(sharpieImageView);
+
+        //Quarter Button
         quarterButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent e) {
                 int pointerCount = e.getPointerCount();
                 Log.e(TAG, "Point Count: " + pointerCount);
-
-/*                if (pointerCount == 3 && !isQuarterVisible) {
-                    quarterImageView.setX(500);
-                    quarterImageView.setY(500);
-                    Log.e(TAG, "I'm in here");
-                    final Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            layout.addView(quarterImageView);
+                if (isLocked == false) {
+                    if (pointerCount == 2
+                            && e.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN
+                            && !isObjectVisible) {
+                        int rawTouchX;
+                        int rawTouchY;
+                        final int location[] = {0, 0};
+                        v.getLocationOnScreen(location);
+                        int secondTouchX = (int) e.getX(1);
+                        int secondTouchY = (int) e.getY(1);
+                        rawTouchX = secondTouchX + location[0] - 150;
+                        rawTouchY = secondTouchY + location[1] - 50;
+                        if (mode.equals("quarter")) {
+                            quarterImageView.setX(rawTouchX);
+                            quarterImageView.setY(rawTouchY);
+                            quarterImageView.setVisibility(View.VISIBLE);
+                            isQuarterVisible = true;
+                        } else if (mode.equals("sharpie")){
+                            sharpieImageView.setX(500);
+                            sharpieImageView.setY(50);
+                            sharpieImageView.setVisibility(View.VISIBLE);
+                            isSharpieVisible = true;
                         }
-                    }, 5000);
-                    isQuarterVisible = true;
-                } else*/ if (pointerCount == 2
-                        && e.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN
-                        && !isQuarterVisible) {
-                    int rawTouchX;
-                    int rawTouchY;
-                    final int location[] = {0, 0};
-                    v.getLocationOnScreen(location);
-                    int secondTouchX = (int) e.getX(1);
-                    int secondTouchY = (int) e.getY(1);
-                    rawTouchX = secondTouchX + location[0] - 150;
-                    rawTouchY = secondTouchY + location[1] - 50;
-                    quarterImageView.setX(rawTouchX);
-                    quarterImageView.setY(rawTouchY);
-                    layout.addView(quarterImageView);
-                    isQuarterVisible = true;
-                } else if (pointerCount == 1
-                        && isQuarterVisible
-                        && e.getAction() == MotionEvent.ACTION_DOWN) {
-                    layout.removeView(quarterImageView);
-                    isQuarterVisible = false;
+                        isObjectVisible = true;
+                    } else if (pointerCount == 1
+                            && isObjectVisible
+                            && e.getAction() == MotionEvent.ACTION_DOWN) {
+
+                        if (mode.equals("quarter")){
+                            quarterImageView.setVisibility(View.INVISIBLE);
+                            isQuarterVisible = false;
+                        } else if(mode.equals("sharpie")){
+                            sharpieImageView.setVisibility(View.INVISIBLE);
+                            isSharpieVisible = false;
+                        }
+                        isObjectVisible = false;
+                    }
                 }
+
                 return true;
             }
         });
-/*        if (proximitySensor == null) {
-            Log.e(TAG, "Proximity sensor is unavilable");
-            finish();
-        } else {
-            Log.e(TAG, "Proximity sensor active");
-        }*/
-    }
 
+        //Lock Button
+        lockButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN){
+                    lockTouchCount++;
+                    if (lockTouchCount == 3){
+                        lockTouchCount = 0;
+                        isLocked = !isLocked;
+                        if (isLocked){
+                            lockNotifier.setVisibility(View.INVISIBLE);
+                            switchButton.setVisibility(View.INVISIBLE);
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        /*        sensorManager.registerListener(proximitySensorListener, proximitySensor, 2 * 1000 * 1000);*/
-    }
+                        } else {
+                            lockNotifier.setVisibility(View.VISIBLE);
+                            switchButton.setVisibility(View.VISIBLE);
+                        }
+                    }
+                }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        /*        sensorManager.unregisterListener(proximitySensorListener);*/
-    }
-
-    // Creating listener for proximity sensor
-/*    private SensorEventListener proximitySensorListener = new SensorEventListener() {
-        private RelativeLayout layout = (RelativeLayout) findViewById(R.id.main_layout);
-
-        @Override
-        public void onSensorChanged(SensorEvent sensorEvent) {
-            if (sensorEvent.values[0] < proximitySensor.getMaximumRange()) {
-                layout.addView(quarterImageView);
-            } else {
-                if (layout != null)
-                    layout.removeAllViewsInLayout();
+                return false;
             }
-        }
+        });
 
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int i) {
+        //Switch Button
+        switchButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN){
+                    if (mode.equals("quarter")) {
+                        quarterImageView.setVisibility(View.INVISIBLE);
+                        if (isSharpieVisible){
+                            sharpieImageView.setVisibility(View.VISIBLE);
+                            isObjectVisible = true;
+                        }
+                        mode = "sharpie";
+                        switchButton.setText("s");
+                        Log.e(TAG, "sharpie on");
+                    } else if (mode.equals("sharpie")){
+                        if (isQuarterVisible) {
+                            quarterImageView.setVisibility(View.VISIBLE);
+                            isObjectVisible = true;
+                        }
+                        sharpieImageView.setVisibility(View.INVISIBLE);
 
-        }
-    };*/
+                        mode = "quarter";
+                        switchButton.setText("q");
+                        Log.e(TAG, "quarter on");
+                    }
+                }
+                return false;
+            }
+        });
+    }
+
+
 }
