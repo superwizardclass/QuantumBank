@@ -71,21 +71,24 @@ public class MainActivity extends Activity {
             public boolean onTouch(View v, MotionEvent e) {
                 int pointerCount = e.getPointerCount();
                 Log.e(TAG, "Point Count: " + pointerCount);
-                if (isLocked == false) {
-                    if (pointerCount == 2
-                            && e.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN
-                            && !isObjectVisible) {
-                        int rawTouchX;
-                        int rawTouchY;
-                        final int location[] = {0, 0};
-                        v.getLocationOnScreen(location);
-                        int secondTouchX = (int) e.getX(1);
-                        int secondTouchY = (int) e.getY(1);
-                        rawTouchX = secondTouchX + location[0] - 150;
-                        rawTouchY = secondTouchY + location[1] - 50;
+
+                    if (
+                            //pointerCount == 2 &&
+                            //e.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN
+                            e.getAction() == MotionEvent.ACTION_DOWN && !isObjectVisible) {
+                        //int rawTouchX;
+                        //int rawTouchY;
+                        //final int location[] = {0, 0};
+                        //v.getLocationOnScreen(location);
+                        //int secondTouchX = (int) e.getX(1);
+                        //int secondTouchY = (int) e.getY(1);
+                        //rawTouchX = secondTouchX + location[0] - 150;
+                        //rawTouchY = secondTouchY + location[1] - 50;
                         if (mode.equals("quarter")) {
-                            quarterImageView.setX(rawTouchX);
-                            quarterImageView.setY(rawTouchY);
+                            //quarterImageView.setX(rawTouchX);
+                            //quarterImageView.setY(rawTouchY);
+                            quarterImageView.setX(500);
+                            quarterImageView.setY(500);
                             quarterImageView.setVisibility(View.VISIBLE);
                             isQuarterVisible = true;
                         } else if (mode.equals("sharpie")){
@@ -95,8 +98,9 @@ public class MainActivity extends Activity {
                             isSharpieVisible = true;
                         }
                         isObjectVisible = true;
-                    } else if (pointerCount == 1
-                            && isObjectVisible
+                    } else if (
+                            //pointerCount == 1 &&
+                            isObjectVisible
                             && e.getAction() == MotionEvent.ACTION_DOWN) {
 
                         if (mode.equals("quarter")){
@@ -108,7 +112,7 @@ public class MainActivity extends Activity {
                         }
                         isObjectVisible = false;
                     }
-                }
+
 
                 return true;
             }
@@ -125,11 +129,11 @@ public class MainActivity extends Activity {
                         isLocked = !isLocked;
                         if (isLocked){
                             lockNotifier.setVisibility(View.INVISIBLE);
-                            switchButton.setVisibility(View.INVISIBLE);
+                            quarterButton.setVisibility(View.INVISIBLE);
 
                         } else {
                             lockNotifier.setVisibility(View.VISIBLE);
-                            switchButton.setVisibility(View.VISIBLE);
+                            quarterButton.setVisibility(View.VISIBLE);
                         }
                     }
                 }
